@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clerk Van Viewer</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --lime: #7CFF00; --panel: rgba(18, 18, 24, 0.86); --ink: #f4f4f8; --muted: #a9a9b8; --purple: #6C47FF; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--lime); font-family: Inter, "Segoe UI", system-ui, sans-serif; color: var(--ink); overflow: hidden; }
+  #c { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
+  #ui { position: fixed; top: 16px; left: 16px; width: 290px; max-height: calc(100% - 32px); overflow: auto; background: var(--panel); backdrop-filter: blur(10px); border-radius: 14px; padding: 14px 14px 10px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  #ui h1 { font-size: 15px; margin: 0 0 2px; letter-spacing: .2px; }
+  #ui .sub { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  fieldset { border: 0; padding: 0; margin: 0 0 12px; }
+  legend { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  button { font: inherit; font-size: 13px; color: var(--ink); background: #2a2a34; border: 1px solid #3a3a46; border-radius: 8px; padding: 7px 10px; cursor: pointer; flex: 1 1 auto; min-width: 0; }
+  button:hover { background: #343442; }
+  a.btn { font: inherit; font-size: 13px; color: var(--ink); background: #2a2a34; border: 1px solid #3a3a46; border-radius: 8px; padding: 7px 10px; text-decoration: none; text-align: center; flex: 1 1 auto; min-width: 0; }
+  a.btn:hover { background: #343442; }
+  a.btn.wide { flex-basis: 100%; }
+  button.on { background: var(--purple); border-color: var(--purple); }
+  button.wide { flex-basis: 100%; }
+  label.range { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  input[type=range] { flex: 1; accent-color: var(--purple); }
+  select { font: inherit; font-size: 13px; color: var(--ink); background: #2a2a34; border: 1px solid #3a3a46; border-radius: 8px; padding: 6px 8px; flex: 1 1 auto; }
+  #status { font-size: 11px; color: var(--muted); line-height: 1.5; border-top: 1px solid #33333f; padding-top: 8px; white-space: pre-wrap; }
+  #keys { position: fixed; right: 16px; bottom: 14px; background: var(--panel); color: var(--muted); font-size: 11px; padding: 8px 12px; border-radius: 10px; line-height: 1.6; }
+  #keys b { color: var(--ink); }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; font-weight: 600; color: #123; font-size: 18px; pointer-events: none; }
+  @media (max-width: 640px) { #ui { width: calc(100% - 32px); max-height: 46%; } #keys { display: none; } }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loading">Loading clerk_van.glb…</div>
+
+<div id="ui">
+  <h1>Clerk Van · Ford Transit</h1>
+  <p class="sub">glTF test rig — wheels, lights, doors, turntable</p>
+
+  <fieldset>
+    <legend>Motion</legend>
+    <div class="row">
+      <button id="btnDrive">Drive (W/S)</button>
+      <button id="btnTurntable">Turntable (T)</button>
+    </div>
+    <label class="range">Speed <input id="speed" type="range" min="0" max="20" step="0.5" value="6" /> <span id="speedVal">6 m/s</span></label>
+    <label class="range">Steer <input id="steer" type="range" min="-30" max="30" step="1" value="0" /> <span id="steerVal">0°</span></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Lights</legend>
+    <div class="row">
+      <button id="btnHead">Headlights (L)</button>
+      <button id="btnTail">Tail lights (K)</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Doors</legend>
+    <div class="row">
+      <button data-door="Door_FL">Front L (1)</button>
+      <button data-door="Door_FR">Front R (2)</button>
+      <button data-door="Door_Slide">Sliding (3)</button>
+      <button data-door="Door_RL">Rear L (4)</button>
+      <button data-door="Door_RR">Rear R (5)</button>
+      <button id="btnAllDoors" class="wide">All doors (O)</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Exported glTF clips</legend>
+    <div class="row">
+      <select id="clipSelect"></select>
+      <button id="btnClip">Play</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Download</legend>
+    <div class="row">
+      <a class="btn" href="./clerk_van.glb" download>glTF (.glb)</a>
+      <a class="btn" href="../export/clerk_van.blend" download>Blender (.blend)</a>
+      <a class="btn" href="../textures/clerk_van_atlas_transit.png" download>Livery atlas</a>
+      <a class="btn" href="../renders/clerk_van_turntable.mp4" download>Turntable .mp4</a>
+      <a class="btn wide" href="https://github.com/Jibaru/clerk-van" target="_blank" rel="noopener">Source, Godot project &amp; docs on GitHub</a>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>View</legend>
+    <div class="row">
+      <button data-view="front34">Front ¾</button>
+      <button data-view="side">Side</button>
+      <button data-view="rear34">Rear ¾</button>
+      <button data-view="top">Top</button>
+      <button id="btnShot">Screenshot</button>
+      <button id="btnReset">Reset (R)</button>
+    </div>
+  </fieldset>
+
+  <div id="status">loading…</div>
+</div>
+
+<div id="keys"><b>W/S</b> drive · <b>A/D</b> steer · <b>L</b> headlights · <b>K</b> tail · <b>1-5</b> doors · <b>O</b> all doors · <b>T</b> turntable · <b>R</b> reset · drag to orbit</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# third-party sources (not redistributable or too big)
+references/crafter/source/
+references/crafter/*.blend
+references/crafter/*.png
+references/transit/source/
+references/transit/textures/
+references/transit/transit.glb
+references/transit/parts/
+references/sketchfab/
+references/gen/*.glb
+references/gen/*.blend
+references/gen/*.png
+volkswagen-crafter.zip
+ford-transit-with-light-bar.zip
+# build / render scratch
+renders/turntable/
+renders/compare/
+renders/fit_*.png
+renders/spot_*.png
+renders/closeup_*.png
+renders/preview_*.png
+renders/*_log.txt
+export/clerk_van_procedural.*
+*.blend1
+.DS_Store

@@ -1,0 +1,3 @@
+mv_s7_o512 saved references/gen/hunyuan_mv_s7_o512.glb 39066320 in 29 s
+mv_s42_o512 saved references/gen/hunyuan_mv_s42_o512.glb 38342960 in 27 s
+mv_tex_s1234 ERR 'You have exceeded your ZeroGPU quota (135s requested vs. 129s left). Try again in 23:57:30. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens'

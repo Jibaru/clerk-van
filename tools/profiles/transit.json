@@ -1,0 +1,81 @@
+{
+ "L": 5.96,
+ "Y_AXLE_F": -1.975,
+ "Y_AXLE_R": 1.775,
+ "WHEEL_R": 0.351,
+ "Y_B": -0.66,
+ "Z_BELT": 1.12,
+ "Z_SILL": 0.73,
+ "Y_PURPLE_ROOF": 0.4,
+ "WHITE_RUN": 0.85,
+ "LOGO_Y": 2.0,
+ "LOGO_Z": 1.55,
+ "LOGO_H": 0.42,
+ "STEP": null,
+ "ARCH_R": 0,
+ "HOOD_Y": -2.13,
+ "VENTS": false,
+ "HOOD_LOGO_Y": -2.52,
+ "HOOD_LOGO_H": 0.16,
+ "FRONT_SILL": 0.74,
+ "REAR_SILL": 0.74,
+ "FREE_SIZE": 0.21,
+ "BLOCK_DY": 0.28,
+ "QR_DX": 0.22,
+ "PASS_DY": 0.0,
+ "ROOF_EDGE": 1.9,
+ "SIDE_W": 2900,
+ "REAR": {
+  "logo": [
+   0.3,
+   0.17,
+   1.95
+  ],
+  "copy": [
+   -0.08,
+   1.6,
+   0.066
+  ],
+  "qr": [
+   0.42,
+   0.98,
+   0.4
+  ],
+  "learn": [
+   0.02,
+   0.96,
+   0.1
+  ]
+ },
+ "EXT_SIDE": [
+  -3.1,
+  3.1,
+  0.0,
+  2.8
+ ],
+ "EXT_FRONT": [
+  -1.2,
+  1.2,
+  0.0,
+  2.8
+ ],
+ "EXT_TOP": [
+  -1.2,
+  1.2,
+  -3.1,
+  3.1
+ ],
+ "PILLAR_DX": 0.19,
+ "ROOF_Z": 2.62,
+ "ROOF_LOGO": [
+  1.7,
+  0.5
+ ],
+ "DIAG": [
+  -1.87,
+  -0.7
+ ],
+ "GFX": 1.45,
+ "BLOCK_Z": 2.05,
+ "QR_Z": 0.98
+}

@@ -1,0 +1,109 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://clerk_van.glb" id="1_van"]
+[ext_resource type="Script" path="res://main.gd" id="2_main"]
+
+[sub_resource type="Environment" id="Environment_lime"]
+background_mode = 1
+background_color = Color(0.486275, 1, 0, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.9, 0.95, 0.85, 1)
+ambient_light_energy = 0.7
+tonemap_mode = 0
+ssao_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(80, 80)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+shading_mode = 0
+albedo_color = Color(0.486275, 1, 0, 1)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("2_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_lime")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 9, 7)
+light_energy = 1.6
+shadow_enabled = true
+directional_shadow_max_distance = 40.0
+
+[node name="Fill" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 4, -5)
+light_energy = 0.5
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_floor")
+surface_material_override = SubResource("StandardMaterial3D_floor")
+
+[node name="Pivot" type="Node3D" parent="."]
+
+[node name="Van" parent="Pivot" instance=ExtResource("1_van")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.4, 3.4, 7.4)
+fov = 40.0
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="UI"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 300.0
+offset_bottom = 440.0
+
+[node name="VBox" type="VBoxContainer" parent="UI/Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Clerk Van - Ford Transit"
+
+[node name="Drive" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Drive (W/S)"
+
+[node name="Turntable" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Turntable (T)"
+
+[node name="Headlights" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Headlights (L)"
+
+[node name="Taillights" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Tail lights (K)"
+
+[node name="Door_FL" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Front left door (1)"
+
+[node name="Door_FR" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Front right door (2)"
+
+[node name="Door_Slide" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Sliding door (3)"
+
+[node name="Door_RL" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Rear left door (4)"
+
+[node name="Door_RR" type="CheckButton" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "Rear right door (5)"
+
+[node name="Steer" type="HSlider" parent="UI/Panel/VBox"]
+layout_mode = 2
+min_value = -30.0
+max_value = 30.0
+
+[node name="Status" type="Label" parent="UI/Panel/VBox"]
+layout_mode = 2
+text = "..."
+autowrap_mode = 3
