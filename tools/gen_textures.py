@@ -74,6 +74,7 @@ LOGO_H = 0.30           # symbol height of the rotated side logo
 REAR = dict(logo=(0.20, 0.30, 1.72), copy=(-0.09, 1.50, 0.085), qr=(0.38, 0.97, 0.30), learn=(0.04, 0.95, 0.105))
 FREE_SIZE = 0.205
 GFX = 1.0               # scale of the whole FREE COOKIES / QR block
+SIDE_R_LINES = None     # passenger-side claim lines instead of FREE COOKIES, e.g. ["Auth as easy as", "<SignIn/>", "clerk.com"]
 BLOCK_Z = 1.86          # top of "FREE"
 QR_Z = 0.89             # centre of the QR / Learn more line
 BLOCK_DY = 0.0
@@ -267,9 +268,15 @@ def draw_side(nose_left):
     s0 = y0 if nose_left else -(y0 + w)
     g = GFX                                   # overall scale of the side block (1 = low-roof captures)
     zt = BLOCK_Z                              # top of "FREE"
-    V.text(s0, zt, "FREE", F_BOLD, FREE_SIZE * g, TEXT_W, anchor="lt")
-    V.text(s0, zt - 0.88 * FREE_SIZE * g, "COOKIES", F_BOLD, FREE_SIZE * g, TEXT_W, anchor="lt")
-    V.text(s0 + 0.015, zt - 1.85 * FREE_SIZE * g, "* up to 10,000 mau", F_TEXT, 0.08 * g, TEXT_W, anchor="lt")
+    if (not nose_left) and SIDE_R_LINES:
+        # passenger side: three-line claim (as on the die-cast reference), same block height as FREE COOKIES
+        ls = 0.62 * FREE_SIZE * g
+        for i, (line, font) in enumerate(zip(SIDE_R_LINES, (F_TEXTB, F_BOLD, F_TEXTB))):
+            V.text(s0, zt - i * 1.12 * ls, line, font, ls, TEXT_W, anchor="lt")
+    else:
+        V.text(s0, zt, "FREE", F_BOLD, FREE_SIZE * g, TEXT_W, anchor="lt")
+        V.text(s0, zt - 0.88 * FREE_SIZE * g, "COOKIES", F_BOLD, FREE_SIZE * g, TEXT_W, anchor="lt")
+        V.text(s0 + 0.015, zt - 1.85 * FREE_SIZE * g, "* up to 10,000 mau", F_TEXT, 0.08 * g, TEXT_W, anchor="lt")
     qs = 0.40 * g
     qr = qr_layer(qs * V.s)
     qdx = QR_DX if nose_left else -QR_DX      # push the QR/Learn-more group away from the white diagonal on both sides

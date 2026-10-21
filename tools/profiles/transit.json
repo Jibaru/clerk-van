@@ -77,5 +77,10 @@
  ],
  "GFX": 1.45,
  "BLOCK_Z": 2.05,
- "QR_Z": 0.98
+ "QR_Z": 0.98,
+ "SIDE_R_LINES": [
+  "Auth as easy as",
+  "<SignIn/>",
+  "clerk.com"
+ ]
 }

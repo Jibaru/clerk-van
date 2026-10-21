@@ -8,7 +8,7 @@ long wheelbase, 149k triangles with interior. The build strips the roof light ba
 the conversion's interior shelving, replaces the sliding door (shipped open, raised, with an open window and step well) by a copy of the driver-side flank mirrored over the opening, blanks the rear
 door glass, scales the asset to metres (wheelbase 3.75 m) and centres it, repaints every
 body-colour panel with the Clerk livery atlas by box projection in metres (no photo projection),
-and rigs doors / wheels / lights / clips. Reference for the intended look: `references/target-diecast.png`. Livery text follows the 12 reference captures (FREE COOKIES on the sides); the die-cast toy carries a different line ("Auth as easy as <SignIn/>"), which is a one-line change in `tools/gen_textures.py` if preferred.
+and rigs doors / wheels / lights / clips. Reference for the intended look: `references/target-diecast.png`. Livery text: FREE COOKIES on the driver side (as in the captures) and "Auth as easy as / <SignIn/> / clerk.com" on the passenger side (as on the die-cast toy); profile key `SIDE_R_LINES`.
 
 Earlier builds are kept as alternatives: `build_gen_van.py` (Hunyuan3D body), `build_crafter_van.py`
 (VW Crafter repaint) and `build_van.py` (fully procedural Transit).
