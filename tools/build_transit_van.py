@@ -489,22 +489,27 @@ def _frame_width(frame_ob, glass_ob):
     return ds[int(len(ds) * 0.9)] if ds else 0.06
 
 
-if "3DGeom-76" in bpy.data.objects and "3DGeom-30" in bpy.data.objects and "3DGeom-38" in bpy.data.objects:
-    FRAME_W = _frame_width(O("3DGeom-76"), O("3DGeom-30"))
-    print("window frame width", round(FRAME_W, 3))
-    segs_r = _boundary_segments(O("3DGeom-38"))
-    for ob in [O(n) for n in ("3DGeom-70", "3DGeom-73") if n in bpy.data.objects] + [body]:
-        me = ob.data; mw = ob.matrix_world; nm = mw.to_3x3().inverted().transposed()
-        if M_WHITE.name not in [m.name for m in me.materials if m]:
-            me.materials.append(M_WHITE)
-        wi = [i for i, m in enumerate(me.materials) if m and m.name == M_WHITE.name][0]
-        n_f = 0
-        for pl in me.polygons:
-            c = mw @ pl.center; n = (nm @ pl.normal).normalized()
-            if c.x < -0.85 and -1.95 < c.y < -0.55 and 1.2 < c.z < 2.1 and n.x < -0.3:
-                if _dist_to_segs((c.y, c.z), segs_r) < FRAME_W:
-                    pl.material_index = wi; n_f += 1
-        print("frame faces", ob.name, n_f)
+if "3DGeom-76" in bpy.data.objects:
+    # the driver mesh 3DGeom-76 = mirror housing + window surround; mirror just the surround (x < 1.03) onto the
+    # passenger door, which has no frame mesh of its own
+    src = O("3DGeom-76"); mw = src.matrix_world
+    bm = bmesh.new(); bm.from_mesh(src.data)
+    sel = [f for f in bm.faces if (mw @ f.calc_center_median()).x < 1.03]
+    nb = bmesh.new(); vm = {}
+    for f in sel:
+        vs_ = []
+        for v in f.verts:
+            if v.index not in vm:
+                w = mw @ v.co; vm[v.index] = nb.verts.new((-w.x, w.y, w.z))
+            vs_.append(vm[v.index])
+        try:
+            nf = nb.faces.new(list(reversed(vs_))); nf.smooth = f.smooth
+        except ValueError:
+            pass
+    bm.free()
+    me_f = bpy.data.meshes.new("Mirror_R_frame"); nb.to_mesh(me_f); nb.free(); me_f.materials.append(M_WHITE)
+    frame_r = bpy.data.objects.new("Mirror_R_frame", me_f); link(frame_r); frame_r.rotation_mode = "XYZ"
+    print("passenger window frame faces", len(me_f.polygons))
 
 FD = (M(0, 1.29, 0).y, M(0, 2.75, 0).y)       # front door y range
 fl = members(lambda c, w, l, h: c.x > 0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
