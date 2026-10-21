@@ -20,7 +20,7 @@
  "FRONT_SILL": 0.74,
  "REAR_SILL": 0.74,
  "FREE_SIZE": 0.21,
- "BLOCK_DY": 0.469,
+ "BLOCK_DY": 0.72,
  "QR_DX": 0.22,
  "PASS_DY": 0.08,
  "ROOF_EDGE": 1.9,
@@ -73,7 +73,7 @@
  ],
  "DIAG": [
   -1.87,
-  -0.78
+  -1.02
  ],
  "GFX": 1.45,
  "BLOCK_Z": 2.05,
