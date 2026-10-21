@@ -510,6 +510,20 @@ if "3DGeom-76" in bpy.data.objects:
     me_f = bpy.data.meshes.new("Mirror_R_frame"); nb.to_mesh(me_f); nb.free(); me_f.materials.append(M_WHITE)
     frame_r = bpy.data.objects.new("Mirror_R_frame", me_f); link(frame_r); frame_r.rotation_mode = "XYZ"
     print("passenger window frame faces", len(me_f.polygons))
+    # door handles: black on both sides (the captures show body-colour handles on the black band).
+    # driver lever lives in 3DGeom-76 -> black paint slot; the passenger skin already has its own lever,
+    # so drop the mirrored copy to avoid two coincident levers
+    M_HANDLE = new_mat("HandlePaint", (0.03, 0.03, 0.034), rough=0.45, coat=0.3)
+    src.data.materials.append(M_HANDLE); hi = len(src.data.materials) - 1
+    n_h = 0
+    for pl in src.data.polygons:
+        c = mw @ pl.center
+        if 0.9 < c.x < 1.01 and -1.05 < c.y < -0.72 and 1.1 < c.z < 1.26:
+            pl.material_index = hi; n_h += 1
+    bm2 = bmesh.new(); bm2.from_mesh(me_f)
+    kill = [f for f in bm2.faces if (lambda c: -1.01 < c.x < -0.9 and -1.05 < c.y < -0.72 and 1.1 < c.z < 1.26)(f.calc_center_median())]
+    bmesh.ops.delete(bm2, geom=kill, context="FACES"); bm2.to_mesh(me_f); bm2.free()
+    print("handle faces: driver painted", n_h, "passenger copies removed", len(kill))
 
 FD = (M(0, 1.29, 0).y, M(0, 2.75, 0).y)       # front door y range
 fl = members(lambda c, w, l, h: c.x > 0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
