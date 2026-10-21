@@ -452,6 +452,17 @@ def members(pred):
             out.append(o)
     return out
 
+# ---- mirror housings: white paint (not the livery), grey indicator pods untouched
+M_WHITE = new_mat("MirrorPaint", (0.90, 0.90, 0.92), rough=0.35, coat=0.3)
+mir_l = separate(body, "Mirror_L_housing", lambda c: c.x > 1.02 and -1.95 < c.y < -0.75 and 0.85 < c.z < 1.65)
+mir_r = separate(body, "Mirror_R_housing", lambda c: c.x < -1.02 and -1.95 < c.y < -0.75 and 0.85 < c.z < 1.65)
+for ob in (mir_l, mir_r, bpy.data.objects.get("3DGeom-76")):
+    if ob is None:
+        continue
+    ob.data.materials.clear(); ob.data.materials.append(M_WHITE)
+    for pl in ob.data.polygons:
+        pl.material_index = 0
+
 FD = (M(0, 1.29, 0).y, M(0, 2.75, 0).y)       # front door y range
 fl = members(lambda c, w, l, h: c.x > 0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
 fr = members(lambda c, w, l, h: c.x < -0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
