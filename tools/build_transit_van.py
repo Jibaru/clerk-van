@@ -463,6 +463,49 @@ for ob in (mir_l, mir_r, bpy.data.objects.get("3DGeom-76")):
     for pl in ob.data.polygons:
         pl.material_index = 0
 
+# ---- window surround: the driver side has a separate frame mesh (3DGeom-76, now white); the passenger
+# frame is plain door skin, so paint a band of skin faces around the glass white with the same width
+def _boundary_segments(ob):
+    bm = bmesh.new(); bm.from_mesh(ob.data); mw = ob.matrix_world
+    segs = [((mw @ e.verts[0].co), (mw @ e.verts[1].co)) for e in bm.edges if len(e.link_faces) == 1]
+    bm.free()
+    return [((a.y, a.z), (b.y, b.z)) for a, b in segs]
+
+
+def _dist_to_segs(pt, segs):
+    px, py = pt; best = 1e9
+    for (ax, ay), (bx, by) in segs:
+        dx, dy = bx - ax, by - ay
+        t = 0.0 if dx == 0 and dy == 0 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+        qx, qy = ax + t * dx, ay + t * dy
+        best = min(best, ((px - qx) ** 2 + (py - qy) ** 2) ** 0.5)
+    return best
+
+
+def _frame_width(frame_ob, glass_ob):
+    segs = _boundary_segments(glass_ob); mw = frame_ob.matrix_world
+    ds = sorted(_dist_to_segs(((mw @ p.center).y, (mw @ p.center).z), segs) for p in frame_ob.data.polygons
+                if abs((mw @ p.center).x) < 1.03 and 1.2 < (mw @ p.center).z < 2.05)
+    return ds[int(len(ds) * 0.9)] if ds else 0.06
+
+
+if "3DGeom-76" in bpy.data.objects and "3DGeom-30" in bpy.data.objects and "3DGeom-38" in bpy.data.objects:
+    FRAME_W = _frame_width(O("3DGeom-76"), O("3DGeom-30"))
+    print("window frame width", round(FRAME_W, 3))
+    segs_r = _boundary_segments(O("3DGeom-38"))
+    for ob in [O(n) for n in ("3DGeom-70", "3DGeom-73") if n in bpy.data.objects] + [body]:
+        me = ob.data; mw = ob.matrix_world; nm = mw.to_3x3().inverted().transposed()
+        if M_WHITE.name not in [m.name for m in me.materials if m]:
+            me.materials.append(M_WHITE)
+        wi = [i for i, m in enumerate(me.materials) if m and m.name == M_WHITE.name][0]
+        n_f = 0
+        for pl in me.polygons:
+            c = mw @ pl.center; n = (nm @ pl.normal).normalized()
+            if c.x < -0.85 and -1.95 < c.y < -0.55 and 1.2 < c.z < 2.1 and n.x < -0.3:
+                if _dist_to_segs((c.y, c.z), segs_r) < FRAME_W:
+                    pl.material_index = wi; n_f += 1
+        print("frame faces", ob.name, n_f)
+
 FD = (M(0, 1.29, 0).y, M(0, 2.75, 0).y)       # front door y range
 fl = members(lambda c, w, l, h: c.x > 0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
 fr = members(lambda c, w, l, h: c.x < -0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
