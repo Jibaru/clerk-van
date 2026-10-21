@@ -67,6 +67,7 @@ Z_ROOF = 2.12
 Y_PURPLE_ROOF = 0.55    # where the purple diagonal meets the roof (45 deg, leaning back)
 WHITE_RUN = 0.90        # horizontal run of the white/black diagonal from the belt line to the ground (55 deg)
 PILLAR_DX = 0.06        # black above the belt starts this far ahead of the diagonal start (covers the door's rear window post)
+DIAG_TOP_Z = None       # z where the cab-door diagonal starts at the door front (default: the belt line)
 DIAG = None             # [y at belt, y at sill]: cab-door diagonal (black frame over the whole door, white triangle at the lower front)
 LOGO_Y = 2.12           # centre of the rotated side logo
 LOGO_Z = 1.30
@@ -237,8 +238,9 @@ def draw_side(nose_left):
     # black band: B-pillar above belt, 45 deg diagonal leaning back below it
     if DIAG:
         yb, ys = DIAG
-        y0 = yb + (ys - yb) * Z_BELT / (Z_BELT - Z_SILL)          # boundary extended down to z = 0
-        V.poly([(S(yb), big), (S(yb), Z_BELT), (S(y0), 0.0), (S(big), 0.0), (S(big), big)], BLACK)
+        zt = DIAG_TOP_Z or Z_BELT                                  # where the diagonal leaves the door's front edge
+        y0 = yb + (ys - yb) * zt / (zt - Z_SILL)                   # boundary extended down to z = 0
+        V.poly([(S(yb), big), (S(yb), zt), (S(y0), 0.0), (S(big), 0.0), (S(big), big)], BLACK)
     else:
         V.poly([(S(Y_B - PILLAR_DX), big), (S(Y_B - PILLAR_DX), Z_BELT), (S(Y_B), Z_BELT),
                 (S(Y_B + WHITE_RUN), 0.0), (S(big), 0.0), (S(big), big)], BLACK)
@@ -261,7 +263,8 @@ def draw_side(nose_left):
     # ---- FREE COOKIES block (screen-left edge s0, same physical y-range on both sides)
     if DIAG:
         yb, ys = DIAG
-        y_edge = yb + (ys - yb) * (Z_BELT - 0.69) / (Z_BELT - Z_SILL)
+        zt = DIAG_TOP_Z or Z_BELT
+        y_edge = yb + (ys - yb) * (zt - 0.69) / (zt - Z_SILL)
     else:
         y_edge = Y_B + (Z_BELT - 0.69) * WHITE_RUN / Z_BELT
     y0, w = y_edge + BLOCK_DY + (0 if nose_left else PASS_DY), 1.14   # block starts where the white diagonal meets the QR bottom
