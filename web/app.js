@@ -119,11 +119,8 @@ function loadModel(kind) {
   const missing = Object.keys(DOOR).concat(['Wheel_FL', 'Wheel_FR', 'Wheel_RL', 'Wheel_RR', 'Light_HeadL', 'Light_TailL']).filter((n) => !nodes[n]);
   let tris = 0; van.traverse((o) => { if (o.isMesh) { const g = o.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
   if (kind === 'print') {
-    // matte grey "resin" so the relief reads in the viewer
-    const resin = new THREE.MeshStandardMaterial({ color: 0xc9cad0, roughness: 0.7, metalness: 0 });
-    van.traverse((o) => { if (o.isMesh) o.material = resin; });
-    log(`${file} loaded\n${Math.round(tris)} tris · one watertight shell, livery raised 15 mm` +
-        `\nno rigs in this model (doors, wheels, lights are static)\nSTL at 1:24 in the Download section`);
+    log(`${file} loaded\n${Math.round(tris)} tris · one watertight shell, livery raised 15 mm, colours as paint guide` +
+        `\nno rigs in this model (doors, wheels, lights are static)\nSTL at 1:24 in the Download section (body + relief parts too)`);
   } else {
     log(`${file} loaded\n${Object.keys(nodes).length} nodes · ${Math.round(tris)} tris · ${clips.length} clips` +
         `\nmaterials: ${Object.keys(mats).length}` + (missing.length ? `\nMISSING: ${missing.join(', ')}` : '\nall pivots found'));
