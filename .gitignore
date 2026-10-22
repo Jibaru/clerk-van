@@ -30,3 +30,4 @@ export/*.blend1
 
 # Volkswagen Crafter (Sketchfab Free Standard, not redistributable): never track it
 references/crafter/
+__pycache__/
