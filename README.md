@@ -10,6 +10,15 @@ door glass, scales the asset to metres (wheelbase 3.75 m) and centres it, repain
 body-colour panel with the Clerk livery atlas by box projection in metres (no photo projection),
 and rigs doors / wheels / lights / clips. Reference for the intended look: `references/target-diecast.png`. Livery text: FREE COOKIES on the driver side (as in the captures) and "Auth as easy as / <SignIn/> / clerk.com" on the passenger side (as on the die-cast toy); profile key `SIDE_R_LINES`.
 
+**Printable version** (`export/clerk_van_print.stl` and `.glb`, built by `tools/build_print_van.py`):
+one watertight shell of the exterior (interior dropped, every panel given a 4 cm wall, voxel remesh at
+8 mm) with every livery graphic — logos, wordmarks, text, QR codes — raised 15 mm as relief so it shows on
+a 3D print. The relief comes from `textures/print_mask/` (written by `gen_textures.py` next to the atlas:
+every pasted graphic is white there), vectorised by `tools/print_mask_polys.py` and conformed to the body by
+ray-casting. The STL is in millimetres at 1:24 (250 × 107 × 113 mm, 1.7 mm walls, 0.6 mm relief); scale it
+in the slicer for other sizes (relief and walls scale with it). The web page shows it with the "Model"
+selector (key **P**, or `?model=print`); doors, wheels and lights are static in this model.
+
 Earlier builds are kept as alternatives: `build_gen_van.py` (Hunyuan3D body), `build_crafter_van.py`
 (VW Crafter repaint) and `build_van.py` (fully procedural Transit).
 
@@ -20,6 +29,8 @@ textures/brand/                        official Clerk logo rasterised (tools/ras
 references/transit/                    the Sketchfab asset (git-ignored source), parts explorer renders
 references/views/                      the eight reference cells + bboxes.json
 export/clerk_van.glb / .blend          shipped model: embedded textures, KHR lights, named pivots, 7 clips
+export/clerk_van_print.stl / .glb      printable version: watertight shell, livery in relief (STL at 1:24, mm)
+textures/print_mask/                   relief masks + vectorised polygons for the printable build
 web/                                   Three.js test page (wheels, lights, doors, turntable)
 godot/                                 Godot 4.3 project with the same controls
 renders/                               360° turntable (mp4 + gif + frames), hero stills, comparison sheets
@@ -33,9 +44,11 @@ tools/                                 gen_textures.py, build_transit_van.py, ex
 Expand-Archive ford-transit-with-light-bar.zip references/transit -Force    # once; then copy source/*.glb to references/transit/transit.glb
 node tools/rasterize_logos.js                                              # once; needs playwright-core + Chrome
 python tools/gen_textures.py --profile transit                             # livery atlas for the Transit body
-& "C:\Program Files\Blender Foundation\Blender 4.2lender.exe" --background --python tools/build_transit_van.py -- (Get-Location)
-& "C:\Program Files\Blender Foundation\Blender 4.2lender.exe" --background export/clerk_van.blend --python tools/render_turntable.py -- (Get-Location) turntable 120
+& "C:\Program Files\Blender Foundation\Blender 4.2\blender.exe" --background --python tools/build_transit_van.py -- (Get-Location)
+& "C:\Program Files\Blender Foundation\Blender 4.2\blender.exe" --background export/clerk_van.blend --python tools/render_turntable.py -- (Get-Location) turntable 120
 powershell tools/encode_turntable.ps1                                       # needs ffmpeg
+python tools/print_mask_polys.py --profile transit                          # relief outlines (needs opencv)
+& "C:\Program Files\Blender Foundation\Blender 4.2\blender.exe" --background export/clerk_van.blend --python tools/build_print_van.py -- (Get-Location) 15 24   # printable: relief mm, scale 1:N
 ```
 
 Each build script copies its GLB into `web/` and `godot/`, so the last one run is the one the

@@ -23,3 +23,7 @@ renders/*_log.txt
 export/clerk_van_procedural.*
 *.blend1
 .DS_Store
+
+# printable build: regenerated in 25 s by tools/build_print_van.py, kept out to save 28 MB
+export/clerk_van_print.blend
+export/*.blend1

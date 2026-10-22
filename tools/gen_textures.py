@@ -123,6 +123,9 @@ def fnt(path, px):
     return ImageFont.truetype(path, max(1, int(px)))
 
 
+MASKS = {}   # panel name -> relief mask (filled by draw_* through View.done)
+
+
 class View:
     """Maps a 2-D vehicle coordinate pair (a, b) to pixels of an image."""
 
@@ -133,6 +136,9 @@ class View:
         self.img = Image.new("RGB", (w, h), WHITE)
         self.d = ImageDraw.Draw(self.img)
         self.s = w / (a1 - a0)  # px per metre
+        # relief mask for the printable model: every pasted graphic / text is white here, base paint is black
+        self.mask = Image.new("L", (w, h), 0)
+        self.dm = ImageDraw.Draw(self.mask)
 
     def p(self, a, b):
         t = (a - self.a0) / (self.a1 - self.a0)
@@ -163,19 +169,26 @@ class View:
         if angle:
             layer = layer.rotate(angle, resample=Image.BICUBIC, expand=True)
         c = self.p(a, b)
-        self.img.paste(layer, (int(c[0] - layer.width / 2), int(c[1] - layer.height / 2)), layer)
+        pos = (int(c[0] - layer.width / 2), int(c[1] - layer.height / 2))
+        self.img.paste(layer, pos, layer)
+        self.mask.paste(255, pos, layer.getchannel("A"))
 
     def text(self, a, b, s, font_path, size_m, fill, anchor="la", angle=0.0):
         """Draw text with its anchor at vehicle (a,b). size_m is the em size in metres."""
         f = fnt(font_path, size_m * self.s)
         if angle == 0:
             self.d.text(self.p(a, b), s, font=f, fill=fill, anchor=anchor)
+            self.dm.text(self.p(a, b), s, font=f, fill=255, anchor=anchor)
         else:
             tmp = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
             bb = tmp.textbbox((0, 0), s, font=f)
             layer = Image.new("RGBA", (bb[2] - bb[0] + 8, bb[3] - bb[1] + 8), (0, 0, 0, 0))
             ImageDraw.Draw(layer).text((-bb[0] + 4, -bb[1] + 4), s, font=f, fill=fill)
             self.paste(layer, a, b, angle)
+
+    def done(self, name):
+        MASKS[name] = self.mask
+        return self.img
 
 
 # ---- Clerk logomark + wordmark ------------------------------------------
@@ -290,7 +303,7 @@ def draw_side(nose_left):
     # ---- rotated clerk logo in the purple band (baseline along the diagonal)
     blk = logo_block(LOGO_H * V.s, TEXT_W)
     V.paste(blk, S(LOGO_Y), LOGO_Z, angle=(-45 if nose_left else 45))
-    return V.img
+    return V.done("side_left" if nose_left else "side_right")
 
 
 # ---- FRONT panel --------------------------------------------------------
@@ -305,7 +318,7 @@ def draw_front():
     for sx in (-1, 1):
         V.rect(sx * 0.95 - 0.13, 0.50, sx * 0.95 + 0.13, 0.58, UNDER, radius=0.02)
     # hood vents near the windscreen base are on the top panel.
-    return V.img
+    return V.done("front")
 
 
 # ---- REAR panel ---------------------------------------------------------
@@ -338,7 +351,7 @@ def draw_rear():
     for sx in (-1, 1):
         for z in (0.95, 1.55):
             V.rect(sx * 0.985 - 0.03, z - 0.07, sx * 0.985 + 0.03, z + 0.07, (60, 50, 110), radius=0.01)
-    return V.img
+    return V.done("rear")
 
 
 # ---- TOP panel ----------------------------------------------------------
@@ -364,7 +377,7 @@ def draw_top():
         y_c, h = ROOF_LOGO
         blk = logo_block(h * V.s, TEXT_W)
         V.paste(blk, 0.0, -y_c, angle=90)
-    return V.img
+    return V.done("top")
 
 
 # ---- small parts --------------------------------------------------------
@@ -494,9 +507,11 @@ atlas.paste(tail, LAYOUT["taillight"][:2])
 atlas.paste(draw_plate_eu().resize((600, 127), Image.LANCZOS), LAYOUT["plate_eu"][:2])
 
 SUFFIX = f"_{PROFILE_NAME}" if PROFILE_NAME else ""
+os.makedirs(os.path.join(OUT, "print_mask"), exist_ok=True)
 atlas.save(os.path.join(OUT, f"clerk_van_atlas{SUFFIX}.png"), optimize=True)
 for name, im in [("side_left", side_l), ("side_right", side_r), ("front", front), ("rear", rear), ("top", top)]:
     im.save(os.path.join(OUT, f"panel_{name}{SUFFIX}.png"), optimize=True)
+    MASKS[name].save(os.path.join(OUT, "print_mask", f"{name}{SUFFIX}.png"), optimize=True)   # relief mask for build_print_van.py
 with open(os.path.join(OUT, f"atlas_layout{SUFFIX}.json"), "w") as f:
     json.dump({"size": ATLAS, "regions": LAYOUT,
                "extents": {"side": EXT_SIDE, "front": EXT_FRONT, "rear": EXT_FRONT, "top": EXT_TOP}}, f, indent=2)

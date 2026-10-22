@@ -70,7 +70,20 @@ const log = (s) => { status.textContent = s; };
 
 // ---------------------------------------------------------------- load
 const loader = new GLTFLoader();
-loader.load('./clerk_van.glb', (gltf) => {
+const MODELS = { display: './clerk_van.glb', print: './clerk_van_print.glb' };
+let currentModel = null;
+function loadModel(kind) {
+  if (kind === currentModel) return;
+  currentModel = kind;
+  for (const b of document.querySelectorAll('[data-model]')) b.classList.toggle('on', b.dataset.model === kind);
+  if (van) { stopClip(); pivot.remove(van); van.traverse((o) => { if (o.isMesh) o.geometry.dispose(); }); van = null; }
+  for (const k of Object.keys(nodes)) delete nodes[k];
+  for (const k of Object.keys(rest)) delete rest[k];
+  for (const k of Object.keys(mats)) delete mats[k];
+  mixer = null; clips = []; activeAction = null;
+  const file = MODELS[kind];
+  log(`loading ${file}…`);
+  loader.load(file, (gltf) => {
   van = gltf.scene;
   pivot.add(van);
   van.traverse((o) => {
@@ -105,12 +118,22 @@ loader.load('./clerk_van.glb', (gltf) => {
 
   const missing = Object.keys(DOOR).concat(['Wheel_FL', 'Wheel_FR', 'Wheel_RL', 'Wheel_RR', 'Light_HeadL', 'Light_TailL']).filter((n) => !nodes[n]);
   let tris = 0; van.traverse((o) => { if (o.isMesh) { const g = o.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
-  log(`clerk_van.glb loaded\n${Object.keys(nodes).length} nodes · ${Math.round(tris)} tris · ${clips.length} clips` +
-      `\nmaterials: ${Object.keys(mats).length}` + (missing.length ? `\nMISSING: ${missing.join(', ')}` : '\nall pivots found'));
-  document.getElementById('loading').remove();
+  if (kind === 'print') {
+    // matte grey "resin" so the relief reads in the viewer
+    const resin = new THREE.MeshStandardMaterial({ color: 0xc9cad0, roughness: 0.7, metalness: 0 });
+    van.traverse((o) => { if (o.isMesh) o.material = resin; });
+    log(`${file} loaded\n${Math.round(tris)} tris · one watertight shell, livery raised 15 mm` +
+        `\nno rigs in this model (doors, wheels, lights are static)\nSTL at 1:24 in the Download section`);
+  } else {
+    log(`${file} loaded\n${Object.keys(nodes).length} nodes · ${Math.round(tris)} tris · ${clips.length} clips` +
+        `\nmaterials: ${Object.keys(mats).length}` + (missing.length ? `\nMISSING: ${missing.join(', ')}` : '\nall pivots found'));
+  }
+  document.getElementById('loading')?.remove();
   applyUrlParams();
-}, (ev) => { if (ev.total) log(`loading ${(100 * ev.loaded / ev.total).toFixed(0)}%`); },
-   (err) => { log('Failed to load clerk_van.glb: ' + err.message + '\nServe this folder over http (see README).'); console.error(err); });
+  }, (ev) => { if (ev.total) log(`loading ${file} ${(100 * ev.loaded / ev.total).toFixed(0)}%`); },
+     (err) => { log(`Failed to load ${file}: ` + err.message + '\nServe this folder over http (see README).'); console.error(err); });
+}
+loadModel(params.get('model') === 'print' ? 'print' : 'display');
 
 // ---------------------------------------------------------------- controls
 function setView(name) {
@@ -182,6 +205,7 @@ q('btnTail').onclick = () => setLights('tail', !S.tail);
 q('btnAllDoors').onclick = () => { const open = !Object.values(S.doorsOpen).every(Boolean); for (const n of Object.keys(DOOR)) setDoor(n, open); };
 for (const b of document.querySelectorAll('[data-door]')) b.onclick = () => setDoor(b.dataset.door, !S.doorsOpen[b.dataset.door]);
 for (const b of document.querySelectorAll('[data-view]')) b.onclick = () => setView(b.dataset.view);
+for (const b of document.querySelectorAll('[data-model]')) b.onclick = () => loadModel(b.dataset.model);
 q('btnReset').onclick = resetAll;
 q('btnClip').onclick = () => { if (activeAction) stopClip(); else playClip(q('clipSelect').value); };
 q('speed').oninput = (e) => { S.speed = +e.target.value; q('speedVal').textContent = `${S.speed} m/s`; };
@@ -198,6 +222,7 @@ addEventListener('keydown', (e) => {
   if (k === 't') q('btnTurntable').click();
   if (k === 'o') q('btnAllDoors').click();
   if (k === 'r') resetAll();
+  if (k === 'p') loadModel(currentModel === 'print' ? 'display' : 'print');
   const dn = { 1: 'Door_FL', 2: 'Door_FR', 3: 'Door_Slide', 4: 'Door_RL', 5: 'Door_RR' }[k];
   if (dn) setDoor(dn, !S.doorsOpen[dn]);
 });

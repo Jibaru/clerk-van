@@ -42,6 +42,14 @@
   <p class="sub">glTF test rig — wheels, lights, doors, turntable</p>
 
   <fieldset>
+    <legend>Model</legend>
+    <div class="row">
+      <button data-model="display">Display · livery</button>
+      <button data-model="print">Printable · relief (P)</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
     <legend>Motion</legend>
     <div class="row">
       <button id="btnDrive">Drive (W/S)</button>
@@ -86,6 +94,8 @@
       <a class="btn" href="../export/clerk_van.blend" download>Blender (.blend)</a>
       <a class="btn" href="../textures/clerk_van_atlas_transit.png" download>Livery atlas</a>
       <a class="btn" href="../renders/clerk_van_turntable.mp4" download>Turntable .mp4</a>
+      <a class="btn" href="../export/clerk_van_print.stl" download>Printable .stl (1:24)</a>
+      <a class="btn" href="./clerk_van_print.glb" download>Printable .glb</a>
       <a class="btn wide" href="https://github.com/Jibaru/clerk-van" target="_blank" rel="noopener">Source, Godot project &amp; docs on GitHub</a>
     </div>
   </fieldset>
@@ -105,7 +115,7 @@
   <div id="status">loading…</div>
 </div>
 
-<div id="keys"><b>W/S</b> drive · <b>A/D</b> steer · <b>L</b> headlights · <b>K</b> tail · <b>1-5</b> doors · <b>O</b> all doors · <b>T</b> turntable · <b>R</b> reset · drag to orbit</div>
+<div id="keys"><b>W/S</b> drive · <b>A/D</b> steer · <b>L</b> headlights · <b>K</b> tail · <b>1-5</b> doors · <b>O</b> all doors · <b>T</b> turntable · <b>P</b> printable · <b>R</b> reset · drag to orbit</div>
 
 <script type="importmap">
 { "imports": {
