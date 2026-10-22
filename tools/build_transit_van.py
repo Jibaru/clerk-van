@@ -129,26 +129,6 @@ def project_uv(obj, mat_indices):
                 u, v, reg = 0.5, 0.5, "bottom"
             u0, v0, u1, v1 = uv_rect(reg)
             uv[li].uv = (u0 + u * (u1 - u0), v0 + v * (v1 - v0))
-            continue
-            if ax >= ay and ax >= az:
-                a0, a1, b0, b1 = ext["side"]; v = (p.z - b0) / (b1 - b0)
-                if n.x > 0:
-                    u = (p.y - a0) / (a1 - a0); reg = "side_left"
-                else:
-                    u = (a1 - p.y) / (a1 - a0); reg = "side_right"
-            elif ay >= az:
-                a0, a1, b0, b1 = ext["front"]; v = (p.z - b0) / (b1 - b0)
-                if n.y < 0:
-                    u = (p.x - a0) / (a1 - a0); reg = "front"
-                else:
-                    u = (a1 - p.x) / (a1 - a0); reg = "rear"
-            else:
-                if n.z > 0:
-                    a0, a1, b0, b1 = ext["top"]; u = (a1 - p.x) / (a1 - a0); v = (b1 - p.y) / (b1 - b0); reg = "top"
-                else:
-                    u, v, reg = 0.5, 0.5, "bottom"
-            u0, v0, u1, v1 = uv_rect(reg)
-            uv[li].uv = (u0 + u * (u1 - u0), v0 + v * (v1 - v0))
 
 def set_origin(ob, pivot):
     pv = Vector(pivot); ob.data.transform(Matrix.Translation(-pv)); ob.location = pv

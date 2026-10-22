@@ -516,3 +516,15 @@ with open(os.path.join(OUT, f"atlas_layout{SUFFIX}.json"), "w") as f:
     json.dump({"size": ATLAS, "regions": LAYOUT,
                "extents": {"side": EXT_SIDE, "front": EXT_FRONT, "rear": EXT_FRONT, "top": EXT_TOP}}, f, indent=2)
 print("atlas written", os.path.join(OUT, f"clerk_van_atlas{SUFFIX}.png"))
+
+# every generation checks that the QR codes still decode (tools/verify_qr.py; needs opencv-python-headless)
+if PROFILE_NAME:
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from verify_qr import verify
+        qr_ok, qr_res = verify(PROFILE_NAME)
+        print("QR check:", qr_res, "OK" if qr_ok else "FAILED")
+        if not qr_ok:
+            sys.exit("QR verification failed: " + str(qr_res))
+    except ImportError:
+        print("QR check skipped: opencv not installed (pip install opencv-python-headless)")

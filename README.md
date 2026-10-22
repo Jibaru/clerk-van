@@ -135,5 +135,5 @@ Axes: Blender front = −Y, glTF front = +Z (Y-up), driver side = +X in both.
 * Typeface: Inter (OFL, `references/brand/Inter.ttf`), Bold for FREE COOKIES, SemiBold for the
   copy, Medium for the footnote. Clerk's brand page does not name its typeface; Inter is the
   closest match to the captures.
-* QR codes encode `https://clerk.com` and are verified to decode (OpenCV) on both sides and
+* QR codes encode `https://clerk.com`; `tools/verify_qr.py` (called by `gen_textures.py` when OpenCV is installed, exit 1 on failure) decodes them on both sides and
   the rear every time the atlas is generated.
