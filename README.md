@@ -11,16 +11,17 @@ body-colour panel with the Clerk livery atlas by box projection in metres (no ph
 and rigs doors / wheels / lights / clips. Reference for the intended look: `references/target-diecast.png`. Livery text: FREE COOKIES on the driver side (as in the captures) and "Auth as easy as / <SignIn/> / clerk.com" on the passenger side (as on the die-cast toy); profile key `SIDE_R_LINES`.
 
 **Printable version** (`export/clerk_van_print.stl`, `_body.stl`, `_relief.stl`, `.glb`, built by `tools/build_print_van.py`):
-one watertight shell of the exterior (interior dropped, every panel given a 4 cm wall, voxel remesh at
-6.5 mm + smoothing) with every livery graphic - logos, wordmarks, text, QR codes - raised 15 mm as relief so
-it shows on a 3D print. The shell is coloured like the display model (livery atlas by the same box
-projection, dark glass and tyres, silver rims, white / purple relief) so the GLB doubles as a paint guide;
-the relief comes from `textures/print_mask/` (written by `gen_textures.py` next to the atlas), vectorised by
-`tools/print_mask_polys.py` and conformed to the body by ray-casting. Every mesh is checked closed (0 open
-edges) before export. The STL is in millimetres at 1:24 (250 x 107 x 113 mm, 1.7 mm walls, 0.6 mm relief);
-`_body.stl` + `_relief.stl` are the same geometry split for a two-colour print; scale them together in the
-slicer for other sizes. The web page shows it with the "Model" selector (key **P**, or `?model=print`);
-doors, wheels and lights are static in this model.
+the exterior of the display model exactly as it looks (same geometry, materials and livery atlas; interior
+and never-visible parts dropped, vertices welded), given a 4 cm wall with Solidify, plus every livery graphic -
+logos, wordmarks, text, QR codes - raised 15 mm as closed relief solids so it shows on a 3D print. The body is
+a set of overlapping closed slabs (one per original panel) that the slicer unions; it is not a single voxel
+shell because remeshing melted the detail and repainted the faces. Relief outlines come from
+`textures/print_mask/` (written by `gen_textures.py` next to the atlas), vectorised by `tools/print_mask_polys.py`
+and conformed to the body by ray-casting; every glyph is checked closed. The STL is in millimetres at 1:24
+(250 x 108 x 113 mm, 1.7 mm walls, 0.6 mm relief); `_body.stl` + `_relief.stl` are the same geometry split for
+a two-colour print; scale them together in the slicer for other sizes. The GLB keeps the original materials
+as a paint guide. The web page shows it with the "Model" selector (key **P**, or `?model=print`); doors,
+wheels and lights are static in this model.
 
 Earlier builds are kept as alternatives: `build_gen_van.py` (Hunyuan3D body), `build_crafter_van.py`
 (VW Crafter repaint) and `build_van.py` (fully procedural Transit).
@@ -32,7 +33,7 @@ textures/brand/                        official Clerk logo rasterised (tools/ras
 references/transit/                    the Sketchfab asset (git-ignored source), parts explorer renders
 references/views/                      the eight reference cells + bboxes.json
 export/clerk_van.glb / .blend          shipped model: embedded textures, KHR lights, named pivots, 7 clips
-export/clerk_van_print*.stl / .glb     printable version: coloured watertight shell, livery in relief (STL at 1:24, mm)
+export/clerk_van_print*.stl / .glb     printable version: display exterior with 4 cm walls, livery in relief (STL at 1:24, mm)
 textures/print_mask/                   relief masks + vectorised polygons for the printable build
 web/                                   Three.js test page (wheels, lights, doors, turntable)
 godot/                                 Godot 4.3 project with the same controls

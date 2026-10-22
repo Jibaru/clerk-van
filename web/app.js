@@ -119,7 +119,7 @@ function loadModel(kind) {
   const missing = Object.keys(DOOR).concat(['Wheel_FL', 'Wheel_FR', 'Wheel_RL', 'Wheel_RR', 'Light_HeadL', 'Light_TailL']).filter((n) => !nodes[n]);
   let tris = 0; van.traverse((o) => { if (o.isMesh) { const g = o.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
   if (kind === 'print') {
-    log(`${file} loaded\n${Math.round(tris)} tris · one watertight shell, livery raised 15 mm, colours as paint guide` +
+    log(`${file} loaded\n${Math.round(tris)} tris · display exterior with 4 cm walls, livery raised 15 mm as closed solids` +
         `\nno rigs in this model (doors, wheels, lights are static)\nSTL at 1:24 in the Download section (body + relief parts too)`);
   } else {
     log(`${file} loaded\n${Object.keys(nodes).length} nodes · ${Math.round(tris)} tris · ${clips.length} clips` +
