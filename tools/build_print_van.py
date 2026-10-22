@@ -98,12 +98,36 @@ for o in meshes:
     keep.append(o)
 log("keeping", len(keep), "objects")
 
+# the display window glass is transparent; with the interior gone it would show the far wall's relief, so
+# the windows get an opaque dark glass (what a print looks like). The headlamp covers (3DGeom-8) keep the
+# clear glass so the lamps inside stay visible.
+PRINT_GLASS = None
+
+
+def print_glass(m):
+    global PRINT_GLASS
+    if PRINT_GLASS is None:
+        PRINT_GLASS = m.copy()
+        PRINT_GLASS.name = "PrintGlass"
+        bsdf = PRINT_GLASS.node_tree.nodes.get("Principled BSDF")
+        if bsdf:
+            bsdf.inputs["Alpha"].default_value = 1.0
+            bsdf.inputs["Base Color"].default_value = (0.02, 0.025, 0.035, 1.0)
+            bsdf.inputs["Roughness"].default_value = 0.15
+        PRINT_GLASS.surface_render_method = "DITHERED"
+    return PRINT_GLASS
+
+
 bpy.ops.object.select_all(action="DESELECT")
 copies = []
 for o in keep:
     ev = o.evaluated_get(depsgraph)
     me = bpy.data.meshes.new_from_object(ev)
     me.transform(o.matrix_world)
+    if o.name != "3DGeom-8":
+        for i, m in enumerate(me.materials):
+            if m and m.name.startswith("Glass"):
+                me.materials[i] = print_glass(m)
     c = bpy.data.objects.new("c_" + o.name, me)
     scene.collection.objects.link(c)
     c.select_set(True)
@@ -112,19 +136,6 @@ bpy.context.view_layer.objects.active = copies[0]
 bpy.ops.object.join()
 ext = copies[0]
 ext.name = ext.data.name = "PrintBody"
-# the display glass is transparent; with the interior gone it would show the far wall's relief, so the
-# printable copy gets an opaque dark glass (what a print looks like)
-for i, m in enumerate(ext.data.materials):
-    if m and m.name.startswith("Glass"):
-        g = m.copy()
-        g.name = "PrintGlass"
-        bsdf = g.node_tree.nodes.get("Principled BSDF")
-        if bsdf:
-            bsdf.inputs["Alpha"].default_value = 1.0
-            bsdf.inputs["Base Color"].default_value = (0.02, 0.025, 0.035, 1.0)
-            bsdf.inputs["Roughness"].default_value = 0.15
-        g.surface_render_method = "DITHERED"
-        ext.data.materials[i] = g
 # the glTF import split most vertices (per-corner normals / UVs), so nearly every edge is a boundary and
 # Solidify would rim each triangle; welding the vertices (UVs stay per corner) reconnects the panels
 bm = bmesh.new()
