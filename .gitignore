@@ -27,3 +27,6 @@ export/clerk_van_procedural.*
 # printable build: regenerated in 25 s by tools/build_print_van.py, kept out to save 28 MB
 export/clerk_van_print.blend
 export/*.blend1
+
+# Volkswagen Crafter (Sketchfab Free Standard, not redistributable): never track it
+references/crafter/

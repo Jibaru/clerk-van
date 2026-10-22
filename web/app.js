@@ -16,7 +16,7 @@ const DOOR = {
   Door_FR: { kind: 'hinge', angle: THREE.MathUtils.degToRad(65) },
   Door_RL: { kind: 'hinge', angle: THREE.MathUtils.degToRad(-95) },
   Door_RR: { kind: 'hinge', angle: THREE.MathUtils.degToRad(95) },
-  Door_Slide: { kind: 'slide', out: new THREE.Vector3(-0.10, 0, 0), back: new THREE.Vector3(0, 0, -1.05) },
+  Door_Slide: { kind: 'slide', out: new THREE.Vector3(-0.10, 0, 0), back: new THREE.Vector3(0, 0, -1.15) },
 };
 
 // ---------------------------------------------------------------- renderer / scene

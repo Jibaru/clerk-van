@@ -9,7 +9,7 @@ extends Node3D
 const WHEEL_R := 0.356
 const DOOR_ANGLE := {"Door_FL": -65.0, "Door_FR": 65.0, "Door_RL": -95.0, "Door_RR": 95.0}
 const SLIDE_OUT := Vector3(-0.10, 0, 0)
-const SLIDE_BACK := Vector3(0, 0, -1.05)
+const SLIDE_BACK := Vector3(0, 0, -1.15)
 
 @onready var van: Node3D = $Pivot/Van
 @onready var pivot: Node3D = $Pivot
@@ -40,8 +40,8 @@ func _ready() -> void:
 			if n is Node3D:
 				rest_rot[name] = n.rotation
 				rest_pos[name] = n.position
-	head_mats = _collect_materials(["Headlight_L", "Headlight_R"], Color(1.0, 0.96, 0.85))
-	tail_mats = _collect_materials(["Taillight_L", "Taillight_R", "BrakeLight"], Color(1.0, 0.1, 0.06))
+	head_mats = _collect_materials(["Headlight_Lens", "Headlight_L", "Headlight_R"], Color(1.0, 0.96, 0.85))
+	tail_mats = _collect_materials(["Taillight_Lens", "Taillight_L", "Taillight_R", "BrakeLight"], Color(1.0, 0.1, 0.06))
 	_set_lights("head", false)
 	_set_lights("tail", false)
 	for mi in van.find_children("*", "MeshInstance3D", true, false):
@@ -65,16 +65,16 @@ func _ready() -> void:
 			("\nMISSING: " + ", ".join(missing)) if missing.size() else "\nall pivots found"]
 
 
-func _collect_materials(mesh_names: Array, emission: Color) -> Array[StandardMaterial3D]:
-	## Imported materials are shared; duplicate them per lens mesh so we can drive emission.
+func _collect_materials(material_names: Array, emission: Color) -> Array[StandardMaterial3D]:
+	## The lenses are MATERIALS on the lamp meshes (Headlight_Lens / Taillight_Lens in the Transit build),
+	## shared between several meshes; duplicate them per surface so we can drive emission.
 	var out: Array[StandardMaterial3D] = []
-	for mn in mesh_names:
-		var mi: MeshInstance3D = van.find_child(mn, true, false)
-		if mi == null:
+	for mi in van.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null:
 			continue
 		for s in range(mi.mesh.get_surface_count()):
 			var m := mi.get_active_material(s)
-			if m is StandardMaterial3D:
+			if m is StandardMaterial3D and (material_names.has(m.resource_name) or material_names.has(mi.name)):
 				var dup: StandardMaterial3D = m.duplicate()
 				dup.emission_enabled = true
 				dup.emission = emission
