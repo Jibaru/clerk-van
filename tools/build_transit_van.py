@@ -525,6 +525,43 @@ if "3DGeom-76" in bpy.data.objects:
     bmesh.ops.delete(bm2, geom=kill, context="FACES"); bm2.to_mesh(me_f); bm2.free()
     print("handle faces: driver painted", n_h, "passenger copies removed", len(kill))
 
+# ---- black trim: wiper arms and the antenna are part of the Body mesh and were taking the livery
+# (white hood, black band). Wipers = small mesh islands lying on the cowl; antenna = the thin column
+# ahead of the passenger A-pillar.
+M_TRIM = new_mat("BlackTrim", (0.02, 0.02, 0.022), rough=0.6)
+body.data.materials.append(M_TRIM); ti = len(body.data.materials) - 1
+me_b = body.data; mw_b = body.matrix_world
+uf_par = list(range(len(me_b.polygons))); uf_key = {}
+def _find(a):
+    while uf_par[a] != a:
+        uf_par[a] = uf_par[uf_par[a]]; a = uf_par[a]
+    return a
+for pl in me_b.polygons:
+    for vi in pl.vertices:
+        k = tuple(round(c, 5) for c in me_b.vertices[vi].co)
+        if k in uf_key:
+            ra, rb = _find(uf_key[k]), _find(pl.index)
+            if ra != rb: uf_par[ra] = rb
+        else:
+            uf_key[k] = pl.index
+uf_groups = {}
+for pl in me_b.polygons: uf_groups.setdefault(_find(pl.index), []).append(pl.index)
+WIPER_BOX = ((-0.9, -2.35, 1.27), (0.9, -2.0, 1.45))
+n_w = 0
+for idx in uf_groups.values():
+    if len(idx) > 3000: continue
+    pts = [mw_b @ me_b.vertices[vi].co for i in idx for vi in me_b.polygons[i].vertices]
+    lo = [min(p[i] for p in pts) for i in range(3)]; hi = [max(p[i] for p in pts) for i in range(3)]
+    if all(lo[i] >= WIPER_BOX[0][i] and hi[i] <= WIPER_BOX[1][i] for i in range(3)):
+        for i in idx: me_b.polygons[i].material_index = ti
+        n_w += len(idx)
+n_a = 0
+for pl in me_b.polygons:
+    c = mw_b @ pl.center
+    if -0.9 < c.x < -0.8 and -2.12 < c.y < -2.04 and 1.36 < c.z < 2.25:
+        pl.material_index = ti; n_a += 1
+print("black trim faces: wipers", n_w, "antenna", n_a)
+
 FD = (M(0, 1.29, 0).y, M(0, 2.75, 0).y)       # front door y range
 fl = members(lambda c, w, l, h: c.x > 0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
 fr = members(lambda c, w, l, h: c.x < -0.75 and FD[0] < c.y < FD[1] and 0.3 < c.z < 2.1 and w < 0.8)
