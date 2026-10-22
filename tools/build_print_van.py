@@ -112,6 +112,19 @@ bpy.context.view_layer.objects.active = copies[0]
 bpy.ops.object.join()
 ext = copies[0]
 ext.name = ext.data.name = "PrintBody"
+# the display glass is transparent; with the interior gone it would show the far wall's relief, so the
+# printable copy gets an opaque dark glass (what a print looks like)
+for i, m in enumerate(ext.data.materials):
+    if m and m.name.startswith("Glass"):
+        g = m.copy()
+        g.name = "PrintGlass"
+        bsdf = g.node_tree.nodes.get("Principled BSDF")
+        if bsdf:
+            bsdf.inputs["Alpha"].default_value = 1.0
+            bsdf.inputs["Base Color"].default_value = (0.02, 0.025, 0.035, 1.0)
+            bsdf.inputs["Roughness"].default_value = 0.15
+        g.surface_render_method = "DITHERED"
+        ext.data.materials[i] = g
 # the glTF import split most vertices (per-corner normals / UVs), so nearly every edge is a boundary and
 # Solidify would rim each triangle; welding the vertices (UVs stay per corner) reconnects the panels
 bm = bmesh.new()
